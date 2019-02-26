@@ -13,14 +13,6 @@ namespace rot1
             //num -> EOF
             //minus | plus -> num
 
-            //get actual token;
-            //check if follows diagram (num)
-            //set var value to token val
-            //Tokenizer getNext()
-            //while (tokenizer position < tokenizer origin size):
-            //    value 
-            //    tokenizer getNex
-
             int expValue = 0;
             bool plus = true;
             bool[] rules = new bool[]{true,false,false}; //can num, can sign, can eof
@@ -60,23 +52,6 @@ namespace rot1
             tokens = new Tokenizer();
             tokens.origin = code;
             return(ParseExpression());
-
-            //DEBUg
-            /*
-            int count = 0;
-            tokens.SelectNext();
-            while(tokens.actual.type != "EOF"){
-
-                Console.WriteLine("try n " + count);
-                Console.WriteLine("Return type was " + tokens.actual.type);
-                Console.WriteLine("Return Value was " + tokens.actual.value);
-                Console.WriteLine("");
-
-                tokens.SelectNext();
-                count ++;
-            }
-            Console.WriteLine("EOF found");
-            */
         }
     }
 }
