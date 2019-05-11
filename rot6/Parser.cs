@@ -8,7 +8,7 @@ namespace rot1
     {
         static Tokenizer tokens; //token queue 
         static int CurrentLine;
-            public static Node ParseStatements(){
+        public static Node ParseStatements(){
             //Console.WriteLine("parsing expression");
             //Diagram rules
             //1st -> Begin\n
@@ -19,9 +19,11 @@ namespace rot1
             
             Statements root = new Statements();
 
+            /* V2.2 removed START , left here for reference on fiture Handouts
             //END check
             bool ended = false;
 
+          
             //Statements always start with START
             if(tokens.actual.type != "START"){
                 throw new SystemException ($"Statements need to start with a START symbol (position {tokens.position}) [Line: {CurrentLine}]");
@@ -32,38 +34,54 @@ namespace rot1
             }   
             tokens.SelectNext();
             CurrentLine++;
+            */
 
             while(tokens.actual.type != "EOF"){
-                //break lines?
-                //
+
+                /*
                 if(tokens.actual.type == "START"){
                     root.Add(ParseStatements());
                 }
+                 */
+                //If line is empty, skip this line;
+                if(tokens.actual.type == "LINEBREAK"){
+                    tokens.SelectNext();
+                    CurrentLine++;
+                    continue; //double check to see if this does what I think it does!!!
+                }
 
-                if(tokens.actual.type != "END"){
+                //Return if ELSE line is found
+                if(tokens.actual.type == "ELSE"){
+                    break;
+                }
+                
+                if(tokens.actual.type != "END" && tokens.actual.type != "WEND"){
                     //Console.WriteLine(tokens.actual.type);
                      root.Add(ParseStatement());
                 } else {
-                    ended = true;
+                    //ended = true;
                     tokens.SelectNext();
-                    if(tokens.actual.type != "LINEBREAK" && tokens.actual.type != "EOF"){
-                        throw new SystemException ($"END doesnt end the file or break the line (position {tokens.position}) [Line: {CurrentLine}]");
+                    if(tokens.actual.type != "LINEBREAK" && tokens.actual.type != "IF" && tokens.actual.type != "EOF"){
+                        throw new SystemException ($"Invalid END construction. (position {tokens.position}) [Line: {CurrentLine}]");
                     }
-                    if(tokens.actual.type != "EOF"){
+                    if(tokens.actual.type == "LINEBREAK"){
                         tokens.SelectNext();
                         CurrentLine++;
                     }
                     break;
                 }
             }
+            /*
             if(ended){
                  return root;
             }
             throw new SystemException ($"END symbol not found, probably missing or misplacing a END line (position {tokens.position}) [Line: {CurrentLine}]");
 
+            */
+            return root;
            
         }
-            public static Node ParseStatement(){
+        public static Node ParseStatement(){
             //Console.WriteLine("parsing expression");
             //Diagram rules
             //1st - Identfier
@@ -74,6 +92,8 @@ namespace rot1
             //1st - statements
             
             Node root;
+
+            //TODO- condense this code by replacing similar code with some functions (expect line end for example)
 
             switch(tokens.actual.type){
                 case "END":
@@ -86,7 +106,7 @@ namespace rot1
                     if(tokens.actual.type != "EQUAL"){ //expecting a EQUAL
                         throw new SystemException ($"Identifier with no assignment ({tokens.actual.value}) (position {tokens.position}) [Line: {CurrentLine}]");
                     }
-                    root = new BinOp(); //creat the assign biop node
+                    root = new BinOp(); //create the assign biop node
                     root.value = '=';
                     root.children[0] = ident; //left is the identfier
                     tokens.SelectNext();
@@ -110,15 +130,90 @@ namespace rot1
                     CurrentLine++;
                     tokens.SelectNext(); //go to next token after linebreak
                     return root;
-                case "START":
-                    return ParseStatements();
+                case "WHILE":
+                    root = new WhileNode();
+                    tokens.SelectNext();
+                    root.children[0] = ParseRelExpression();
+                    if(tokens.actual.type != "LINEBREAK"){ //expect linebreak after the expression;
+                        throw new SystemException ($"No LINEBREAK after Relative Expression (position {tokens.position}) [Line: {CurrentLine}]");
+                    }
+                    CurrentLine++;
+                    tokens.SelectNext(); //go to next token after linebreak
+                    root.children[1] = ParseStatements(); //already goes to next line, no select next required
+                    return root;
+                case "IF":
+                    root = new IfNode();
+                    tokens.SelectNext();
+                    root.children[0] = ParseRelExpression();
+
+                    if(tokens.actual.type != "THEN"){ //expect THEN after the rel expression;
+                        throw new SystemException ($"THEN is required after an IF's Relative Expression (position {tokens.position}) [Line: {CurrentLine}]");
+                    }
+                    tokens.SelectNext();
+
+                    if(tokens.actual.type != "LINEBREAK"){ //expect linebreak after THEN;
+                        throw new SystemException ($"No LINEBREAK after Relative Expression (position {tokens.position}) [Line: {CurrentLine}]");
+                    }
+                    CurrentLine++;
+                    tokens.SelectNext(); //go to next token after linebreak
+                    
+                    root.children[1] = ParseStatements(); //already goes to next line, no select next required
+                    
+                    if(tokens.actual.type == "ELSE"){
+                        tokens.SelectNext();
+                        if(tokens.actual.type != "LINEBREAK"){ //expect linebreak after ELSE;
+                            throw new SystemException ($"No LINEBREAK after ELSE (position {tokens.position}) [Line: {CurrentLine}]");
+                        }
+                        CurrentLine++;
+                        tokens.SelectNext(); //go to next token after linebreak
+                        root.children[2] = ParseStatements(); //left the token after the END, so it is probably on IF (END IF\n)
+                    }
+
+                    if(tokens.actual.type != "IF"){ //expect IF after the statements END for END IF\n construction;
+                        throw new SystemException ($"IF section end symbol not found, found END instead of END IF (position {tokens.position}) [Line: {CurrentLine}]");
+                    }
+                    tokens.SelectNext();
+
+                    if(tokens.actual.type != "LINEBREAK"){ //expect linebreak after THEN;
+                        throw new SystemException ($"No LINEBREAK after Relative Expression (position {tokens.position}) [Line: {CurrentLine}]");
+                    }
+                    CurrentLine++;
+                    tokens.SelectNext(); //go to next token after linebreak
+
+                    return root;
                 
                 default:
                     return new NoOp();
             }
 
         }
-        public static Node ParseExpression(){
+        public static Node ParseRelExpression(){
+            //Console.WriteLine("parsing relative expression");
+            //Diagram rules
+            //1st - expression
+            //expression -> equal | higher | lower
+            //equal | higher| lower -> expression
+            
+            Node root = new BinOp();
+            root.children[0] = ParseExpression();
+            switch(tokens.actual.type){
+                case "EQUAL":
+                    root.value = "==";
+                    break;
+                case "HIGHER":
+                    root.value = ">";
+                    break;
+                case "LOWER":
+                    root.value = "<";
+                    break;
+            }
+            tokens.SelectNext();
+            root.children[1] = ParseExpression();
+
+            return root;
+        }
+
+            public static Node ParseExpression(){
             //Console.WriteLine("parsing expression");
             //Diagram rules
             //1st - term
@@ -218,6 +313,11 @@ namespace rot1
                         }
                         tokens.SelectNext();
                         return root;
+                    case "INPUT":
+                        root = new UnOp();
+                        root.value = "input";
+                        tokens.SelectNext();
+                        return(root);
                 }
 
             //End of term reached, but exiting was not allowed
