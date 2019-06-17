@@ -10,6 +10,8 @@ namespace rot1
         public int position = 0; //actual token separation pos
         public Token actual; //last parsed token
 
+        public bool comment = false; //check if inside a comment
+
         private List<String> reservedWords = new List<String>(){"END","WEND","PRINT","INPUT","IF","ELSE","THEN","WHILE","SUB",
                                                                 "MAIN","INTEGER","BOOLEAN","DIM","AS","TRUE","FALSE","AND","OR","NOT"};
         public Token SelectNext(){
@@ -18,7 +20,7 @@ namespace rot1
             string tokenizable = "";
             while(true){
                 //If origin got to the end or comment starter (') detected
-                if(position >= origin.Length || origin[position] == '\''){
+                if(position >= origin.Length){
                     if(tokenizable.Length > 0){
                         int value;
                         if(int.TryParse(tokenizable, out value)){
@@ -34,6 +36,22 @@ namespace rot1
                     actual = ret;
                     return ret;
                 }
+
+                //comment
+                if(comment) {
+                    if(origin[position] == '\n'){
+                        comment = false;
+                    }
+                    position++;
+                    continue;
+                }
+
+                else if (origin[position] == '\''){
+                    comment = true;
+                    position++;
+                    continue;
+                }
+
                 //Handle sign case
                 if("+-*/()=><\n".Contains(origin[position])){
                     if(tokenizable.Length == 0){ //token is a sign or simbol
