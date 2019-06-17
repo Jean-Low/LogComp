@@ -9,7 +9,7 @@ namespace rot1
         override public (string,object) Evaluate(SymbolTable symbolTable){
 
             //get func node
-            FuncDec node = (FuncDec) symbolTable.Get((string)this.value).Item2;
+            FuncDec node = (FuncDec) symbolTable.GetFromMain((string)this.value).Item2;
 
             //create the new symbol table for the new escope
             SymbolTable inferiorST = new SymbolTable();

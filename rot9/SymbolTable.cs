@@ -11,7 +11,7 @@ namespace rot1
             table = new Dictionary<string,(string,object)>();
         }
         // possible types: int, bool, none, function
-        public (string,object) Get(string key){ //TODO return a sign to throw the error in parser, so i can throw it with the line index
+        public (string,object) Get(string key){ 
             (string,object) value;
             if(table.ContainsKey(key)){
                 value = table[key];
@@ -23,6 +23,19 @@ namespace rot1
                 }
                 throw new SystemException ($"Undefined Variable! ({key}). Line {Parser.CurrentLine}");
             }
+        }
+
+        public (string,object) GetFromMain(string key){ //getter that gets from the main ST
+            (string,object) value;
+            if(parent != null){
+                value = parent.GetFromMain(key);
+                return value;
+            }
+            if(table.ContainsKey(key)){
+                value = table[key];
+                return value;
+            }
+            throw new SystemException ($"Undefined Variable! ({key}). Line {Parser.CurrentLine}");
         }
 
         public int Set(string key, object value, string type){

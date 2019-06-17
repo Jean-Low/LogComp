@@ -1,4 +1,5 @@
-sub main ()
+sub Main ()
+    'now i cam comment freelly
     dim a as integer
     a = input
     print 10

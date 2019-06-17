@@ -1,0 +1,44 @@
+//Lexical Rules
+
+<letter> ::= a | b | c | d ... | z | A | B | C | D ...| Z 
+<symbol> ::= ? | / | _ ... | $ | & | ( | ) //special non-operation symbols on US keyboard
+<digit> ::= 1 | 2 | 3 .. | 9
+
+//Sintax rules
+
+//Identifier
+<identifier> ::= <letter> | _  {<letter> | <digit> | _ }
+
+<integer> ::= <digit> {<digit>}
+
+<boolean> ::= true | false
+
+
+<program> ::= {<subDec> | <funcDec> }
+
+<subDec> ::= SUB <identifier> '(' [{<identifier> AS <type> [,] } ] \n { <statement> \n} END SUB;
+
+<funcDec> ::= FUNCTION <identifier> '('' [{<identifier> AS <type> [,] } ] ')' AS <type> \n { <statement> \n} END FUNCTION;
+
+<type> ::= INTEGER | BOOLEAN;
+
+<statement> ::= Null 
+    | (<identifier> = <relExpression>)
+    | ( PRINT <relExpression>)
+    | ( DIM <identifier> AS <type>)
+    | ( WHILE <relExpression> \n [ {<statement> \n } ] WEND )
+    | ( IF <relExpression> THEN \n  [{<statement> \n }] [ ELSE \n {<statement> \n}] END IF )
+    | ( CALL <identifier> '(' [{RelExpression [,] } ] ')' );
+
+<relExpression> ::= <expression> [ ( = | > | < ) <expression> ];
+
+<expression> ::= <term>  [ { ( + | - | OR ) <term> } ];
+
+<term> ::= <factor>  [ { ( * | / | AND ) <fator> } ] ;
+
+<factor> ::= <integer>
+    | <boolean>
+    | <identifier> [ '(' [ {<relExpression> [,]} ] ')' ]
+    | [ { (+ | - | NOT ) } ] <fator>
+    | INPUT
+    | '(' <relExpression> ')' ;

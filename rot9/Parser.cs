@@ -40,7 +40,7 @@ namespace rot1
 
             //add a main funccall
             FuncCall mainCall = new FuncCall();
-            mainCall.value = "Main";
+            mainCall.value = "main";
             root.Add(mainCall);
 
             return root;
@@ -188,7 +188,7 @@ namespace rot1
                             ended = true;
                             break;
                         case "END":
-                            if(statementsType != "func" && statementsType != "sub" && statementsType != "if"){
+                            if(statementsType != "func" && statementsType != "sub" && statementsType != "if" && statementsType != "else"){
                                 throw new SystemException ($"Invalid END construction. 'end' keyword outside funtion statements (position {tokens.position}) [Line: {CurrentLine}]");
                             }
                             ended = true;
