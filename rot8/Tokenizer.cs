@@ -12,6 +12,7 @@ namespace rot1
 
         public bool comment = false; //check if inside a comment
 
+
         private List<String> reservedWords = new List<String>(){"END","WEND","PRINT","INPUT","IF","ELSE","THEN","WHILE","SUB",
                                                                 "MAIN","INTEGER","BOOLEAN","DIM","AS","TRUE","FALSE","AND","OR","NOT"};
         public Token SelectNext(){
@@ -36,6 +37,7 @@ namespace rot1
                     actual = ret;
                     return ret;
                 }
+
 
                 //comment
                 if(comment) {
@@ -100,42 +102,6 @@ namespace rot1
                             ret.type = upToken;
                             actual = ret;
                             return ret;
-                            /*
-                            switch(upToken){
-                                case "END":
-                                    ret.type = "END";
-                                    actual = ret;
-                                    return ret;
-                                case "WEND":
-                                    ret.type = "WEND";
-                                    actual = ret;
-                                    return ret;
-                                case "PRINT":
-                                    ret.type = "PRINT";
-                                    actual = ret;
-                                    return ret;
-                                case "INPUT":
-                                    ret.type = "INPUT";
-                                    actual = ret;
-                                    return ret;
-                                case "IF":
-                                    ret.type = "IF";
-                                    actual = ret;
-                                    return ret;
-                                case "ELSE":
-                                    ret.type = "ELSE";
-                                    actual = ret;
-                                    return ret;
-                                case "THEN":
-                                    ret.type = "THEN";
-                                    actual = ret;
-                                    return ret;
-                                case "WHILE":
-                                    ret.type = "WHILE";
-                                    actual = ret;
-                                    return ret;
-                            }
-                            */
                         }
                         ret.type = "IDENTIFIER";
                         ret.value = tokenizable;
@@ -178,42 +144,7 @@ namespace rot1
                                 ret.type = upToken;
                                 actual = ret;
                                 return ret;
-                                /*
-                                switch(upToken){
-                                    case "END":
-                                        ret.type = "END";
-                                        actual = ret;
-                                        return ret;
-                                    case "WEND":
-                                        ret.type = "WEND";
-                                        actual = ret;
-                                        return ret;
-                                    case "PRINT":
-                                        ret.type = "PRINT";
-                                        actual = ret;
-                                        return ret;
-                                    case "INPUT":
-                                        ret.type = "INPUT";
-                                        actual = ret;
-                                        return ret;
-                                    case "IF":
-                                        ret.type = "IF";
-                                        actual = ret;
-                                        return ret;
-                                    case "ELSE":
-                                        ret.type = "ELSE";
-                                        actual = ret;
-                                        return ret;
-                                    case "THEN":
-                                        ret.type = "THEN";
-                                        actual = ret;
-                                        return ret;
-                                    case "WHILE":
-                                        ret.type = "WHILE";
-                                        actual = ret;
-                                        return ret;
-                                }
-                                */
+                                
                             }
                             //check if word is reserved
                             ret.type = "IDENTIFIER";
